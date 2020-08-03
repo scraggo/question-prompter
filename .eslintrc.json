@@ -1,0 +1,22 @@
+{
+  "parser": "babel-eslint",
+  "extends": ["airbnb-base", "plugin:prettier/recommended"],
+  "rules": {
+    "import/no-named-as-default": 1,
+    "import/prefer-default-export": 0,
+    "max-len": [
+      "error",
+      120,
+      {
+        "ignoreComments": true
+      }
+    ],
+    "require-jsdoc": "warn",
+    "valid-jsdoc": [
+      "error",
+      {
+        "requireReturn": true
+      }
+    ]
+  }
+}

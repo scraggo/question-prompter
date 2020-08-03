@@ -1,0 +1,35 @@
+{
+  "config": {
+    "output": "~/Desktop"
+  },
+  "content": [
+    {
+      "name": "experience1",
+      "path": "~/programming/_Github/small-projects/small-projects-javascript/question-prompter/src/example/experience1.txt",
+      "questions": ["what do you like?", "what do you dislike?"]
+    },
+    {
+      "name": "experience2",
+      "path": "~/programming/_Github/small-projects/small-projects-javascript/question-prompter/src/example/experience2.txt",
+      "questions": [
+        {
+          "name": "what do you LOVE?"
+        },
+        {
+          "name": "what do you HATE?"
+        }
+      ]
+    },
+    {
+      "name": "experience3",
+      "questions": [
+        {
+          "name": "custom q. sick, right?"
+        },
+        {
+          "name": "another custom q. can you believe it?"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "name": "node-question-prompter",
+  "version": "0.0.1",
+  "description": "prompt for user configured questions and notes",
+  "main": "src/index.js",
+  "author": "scraggo@gmail.com",
+  "scripts": {
+    "build": "npm run clean && babel src --out-dir build",
+    "clean": "rm -rf build",
+    "inspect": "npm run start-watch -- --inspect",
+    "lint": "eslint . --ext .js",
+    "start": "node build/index.js",
+    "start-dev": "babel-node src/index.js",
+    "start-dev-ex": "babel-node src/index.js -c \"./src/example/example.json\" --outputFormat=yaml",
+    "start-watch": "nodemon --exec babel-node src/index.js"
+  },
+  "dependencies": {
+    "commander": "^4.0.0",
+    "date-fns": "^2.15.0",
+    "inquirer": "^7.3.3",
+    "js-yaml": "^3.14.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "@babel/register": "^7.4.4",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.3.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "husky": "^2.3.0",
+    "nodemon": "^1.19.0",
+    "prettier": "^1.17.1",
+    "prettier-eslint": "^8.8.2"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint && npm run build",
+      "pre-push": "npm run lint"
+    }
+  }
+}

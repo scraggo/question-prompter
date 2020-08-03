@@ -1,0 +1,12 @@
+# gitignore
+
+# package directories
+node_modules
+
+/*.log
+.env*
+.webpack
+
+.vscode
+
+.DS_Store
