@@ -19,94 +19,106 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * @param {Array<string|Object>} questions if {string}, simple format
- * @returns {Array<Object>} questions mapped to inquirer format
- */
-const mapToInquirer = questions => questions.map(q => {
-  if (typeof q === 'string') {
-    return {
-      name: q
-    };
-  }
-
-  return q;
-});
-
-const getEntryQuestions = (choice, userData) => {
-  const {
-    questions
-  } = selectors.findFromData(choice, userData);
-  return mapToInquirer(questions);
-};
-
-const secondLevel = {
-  answerQuestions: {
-    name: 'Answer questions',
-    value: 'answerQuestions',
-    cb: async userData => {
-      const prompt = await _inquirer.default.prompt([{
+class InquirerWrapper {
+  constructor(config) {
+    this.config = config;
+    this.prompts = {
+      answerQuestions: {
+        name: 'Answer questions',
+        value: 'answerQuestions',
+        cb: this.answerQuestionsCallback.bind(this)
+      },
+      lookAtNotes: {
+        name: 'Look at notes',
+        value: 'lookAtNotes',
+        cb: this.lookAtNotesCallback.bind(this)
+      },
+      whichNote: [{
+        type: 'list',
+        name: 'whichNote',
+        message: 'What note do you want to read?',
+        choices: selectors.getEntriesWithPath(this.config)
+      }],
+      whichQuestions: [{
         type: 'list',
         name: 'whichQuestions',
         message: 'Which questions do you want to answer?',
-        choices: selectors.getQuestionsList(userData)
-      }]);
-      const choice = prompt.whichQuestions;
-      const questions = getEntryQuestions(choice, userData);
-      const answers = await _inquirer.default.prompt(questions);
-      const extension = selectors.getOutputFormat(userData);
-      const filePath = await (0, _ioHandlers.writeQAToOutputDir)({
-        choice,
-        dir: selectors.getOutputPath(userData),
-        extension,
-        text: (0, _ioHandlers.convertQAOutput)(choice, answers, {
-          extension
-        })
-      });
-      console.log('Successfully saved to', filePath);
-      const openFile = await _inquirer.default.prompt([{
+        choices: selectors.getQuestionsList(this.config)
+      }],
+      openFile: [{
         type: 'list',
         name: 'openFile',
         message: 'Want to open your questions file?',
-        choices: mapToInquirer(['Yes', 'No'])
-      }]);
-
-      if (openFile.openFile === 'Yes') {
-        console.log('Opening...');
-        (0, _exec.openWithVSCode)(filePath);
-      } else {
-        console.log('Exiting.');
-      }
-    }
-  },
-  lookAtNotes: {
-    name: 'Look at notes',
-    value: 'lookAtNotes',
-    cb: userData => _inquirer.default.prompt([{
+        choices: InquirerWrapper.mapToInquirer(['Yes', 'No'])
+      }]
+    };
+    this.prompts.topLevel = [{
       type: 'list',
-      name: 'whichNote',
-      message: 'What note do you want to read?',
-      choices: selectors.getEntriesWithPath(userData)
-    }]).then(prompt => {
-      const choice = prompt.whichNote;
-      const noteToView = selectors.findFromData(choice, userData).path;
-      console.log(`Opening ${noteToView}...`);
-      (0, _exec.openConfigWithVSCode)(noteToView);
-    })
+      name: 'topLevel',
+      message: 'What do you want to do?',
+      choices: [this.prompts.answerQuestions, this.prompts.lookAtNotes]
+    }];
   }
-};
-const prompt1 = [{
-  type: 'list',
-  name: 'topLevel',
-  message: 'What do you want to do?',
-  choices: [secondLevel.answerQuestions, secondLevel.lookAtNotes]
-}];
+  /**
+   * @param {Array<string|Object>} questions if {string}, simple format
+   * @returns {Array<Object>} questions mapped to inquirer format
+   */
 
-var _default = config => {
-  return _inquirer.default.prompt(prompt1).then(answers => {
+
+  static mapToInquirer(questions) {
+    return questions.map(q => typeof q === 'string' ? {
+      name: q
+    } : q);
+  }
+
+  async main() {
+    const answers = await _inquirer.default.prompt(this.prompts.topLevel);
     const choice = answers.topLevel;
-    return secondLevel[choice].cb(config);
-  });
-};
+    return this.prompts[choice].cb();
+  }
+
+  getEntryQuestions(choice) {
+    const {
+      questions
+    } = selectors.findFromData(choice, this.config);
+    return InquirerWrapper.mapToInquirer(questions);
+  }
+
+  async answerQuestionsCallback() {
+    const prompt = await _inquirer.default.prompt(this.prompts.whichQuestions);
+    const choice = prompt.whichQuestions;
+    const questions = this.getEntryQuestions(choice);
+    const answers = await _inquirer.default.prompt(questions);
+    const extension = selectors.getOutputFormat(this.config);
+    const filePath = await (0, _ioHandlers.writeQAToOutputDir)({
+      choice,
+      dir: selectors.getOutputPath(this.config),
+      extension,
+      text: (0, _ioHandlers.convertQAOutput)(choice, answers, {
+        extension
+      })
+    });
+    console.log('Successfully saved to', filePath);
+    const openFile = await _inquirer.default.prompt(this.prompts.openFile);
+
+    if (openFile.openFile === 'Yes') {
+      console.log('Opening...');
+      (0, _exec.openWithVSCode)(filePath);
+    } else {
+      console.log('Exiting.');
+    }
+  }
+
+  async lookAtNotesCallback() {
+    const prompt = await _inquirer.default.prompt(this.prompts.whichNote);
+    const choice = prompt.whichNote;
+    const noteToView = selectors.findFromData(choice, this.config).path;
+    console.log(`Opening ${noteToView}...`);
+    (0, _exec.openConfigWithVSCode)(noteToView);
+  }
+
+}
+
+var _default = config => new InquirerWrapper(config).main();
 
 exports.default = _default;

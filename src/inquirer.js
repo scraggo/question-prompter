@@ -70,7 +70,7 @@ class InquirerWrapper {
   async main() {
     const answers = await inquirer.prompt(this.prompts.topLevel);
     const choice = answers.topLevel;
-    return this.prompts[choice].cb(this.config);
+    return this.prompts[choice].cb();
   }
 
   getEntryQuestions(choice) {
@@ -82,7 +82,7 @@ class InquirerWrapper {
     const prompt = await inquirer.prompt(this.prompts.whichQuestions);
 
     const choice = prompt.whichQuestions;
-    const questions = this.getEntryQuestions(choice, this.config);
+    const questions = this.getEntryQuestions(choice);
 
     const answers = await inquirer.prompt(questions);
 
