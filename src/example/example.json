@@ -1,16 +1,16 @@
 {
   "config": {
-    "output": "~/Desktop"
+    "output": "src/example"
   },
   "content": [
     {
       "name": "experience1",
-      "path": "~/programming/_Github/small-projects/small-projects-javascript/question-prompter/src/example/experience1.txt",
+      "path": "src/example/experience1.txt",
       "questions": ["what do you like?", "what do you dislike?"]
     },
     {
       "name": "experience2",
-      "path": "~/programming/_Github/small-projects/small-projects-javascript/question-prompter/src/example/experience2.txt",
+      "path": "src/example/experience2.txt",
       "questions": [
         {
           "name": "what do you LOVE?"
