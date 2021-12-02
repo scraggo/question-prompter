@@ -5,17 +5,17 @@
     "import/no-named-as-default": 1,
     "import/prefer-default-export": 0,
     "max-len": [
-      "error",
+      1,
       120,
       {
         "ignoreComments": true
       }
     ],
-    "require-jsdoc": "warn",
+    "require-jsdoc": 1,
     "valid-jsdoc": [
-      "error",
+      1,
       {
-        "requireReturn": true
+        "requireReturn": false
       }
     ]
   }

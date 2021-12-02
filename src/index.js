@@ -1,10 +1,11 @@
-import commander from './commander';
+import getCLIArgs from './cli-args';
 import { getConfig } from './io-handlers';
-import inquirer from './inquirer';
+import { Prompter } from './prompter';
 
-const main = () =>
-  getConfig(commander).then(config => {
-    return inquirer(config);
-  });
+const main = async () => {
+  const { config, outputFormat } = getCLIArgs();
+  const appConfig = await getConfig({ config, outputFormat });
+  return new Prompter(appConfig).main();
+};
 
 main();

@@ -64,7 +64,7 @@ export const getBackupFileLocation = (backupDir, filepath) => {
  * It allows for '~' in paths and creates a new path for the backup file location.
  * @param {BashFilePath} fileToCopy path of file or directory
  * @param {BashFilePath} backupDirAbsolute backup directory
- * @returns {Promise} resolves with what copyFileAsync returns
+ * @returns {Promise<void>} resolves with what copyFileAsync returns
  */
 export const copyFileAsync = (fileToCopy, backupDirAbsolute) => {
   const absFilePath = resolvePath(fileToCopy);

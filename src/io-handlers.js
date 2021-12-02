@@ -9,7 +9,16 @@ import {
   writeFileAsync
 } from './utils/fs';
 
-const parseConfigFile = configPath => {
+/**
+ * @typedef {import('./types').CLIArgs} CLIArgs
+ * @typedef {import('./types').AppConfig} AppConfig
+ */
+
+/**
+ * @param {string} configPath string
+ * @returns {function} parser function
+ */
+const getConfigFileParser = configPath => {
   if (configPath.endsWith('json')) {
     return JSON.parse;
   }
@@ -19,23 +28,27 @@ const parseConfigFile = configPath => {
   throw new Error(`unknown extension type, ${configPath}`);
 };
 
-export const getConfig = commander => {
+/**
+ * @param {CLIArgs} commander CLI arguments
+ * @returns {Promise<AppConfig>} AppConfig
+ */
+export const getConfig = async commander => {
   // config is required, or we don't get to this point
   const { config, outputFormat = 'json' } = commander;
   const configPath = resolvePath(config);
-  return existsAsync(configPath)
-    .then(() => readFileAsync(configPath, { encoding: 'utf8' }))
-    .then(configFileText => {
-      const parsed = parseConfigFile(configPath)(configFileText);
-      parsed.outputFormat = outputFormat;
-      return parsed;
-    });
+  await existsAsync(configPath);
+  const configFileText = await readFileAsync(configPath, { encoding: 'utf8' });
+  const parsed = getConfigFileParser(configPath)(configFileText);
+  parsed.outputFormat = outputFormat;
+  return parsed;
 };
 
 /**
  * Filenames will be unique once per second
  * @param {string} choice result
  * @param {string} dir from config
+ * @param {Object} [options={}] from config
+ * @param {string} [options.extension] allowed extension, ex: 'yaml'
  * @returns {string} BackupFileLocation
  */
 export const createFileName = (choice, dir, { extension } = {}) => {
@@ -44,6 +57,13 @@ export const createFileName = (choice, dir, { extension } = {}) => {
   return getBackupFileLocation(dir, fileName);
 };
 
+/**
+ * @param {*} choice
+ * @param {*} answersToQs
+ * @param {Object} [options] from config
+ * @param {string} [options.extension] allowed extension, ex: 'yaml'
+ * @returns
+ */
 export const convertQAOutput = (choice, answersToQs, { extension } = {}) => {
   const outputData = {
     name: choice,
@@ -60,6 +80,13 @@ export const convertQAOutput = (choice, answersToQs, { extension } = {}) => {
   throw new Error(`unknown extension type, ${extension}`);
 };
 
+/**
+ * @param {Object} options from config
+ * @param {string} [options.extension] allowed extension, ex: 'yaml'
+ * @param {*} [options.choice] todo
+ * @param {*} [options.dir] todo
+ * @param {*} [options.text] todo
+ */
 export const writeQAToOutputDir = async ({ choice, dir, extension, text }) => {
   try {
     let filePath = createFileName(choice, dir, { extension });
