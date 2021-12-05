@@ -13,7 +13,16 @@ var _fs = require("./utils/fs");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const parseConfigFile = configPath => {
+/**
+ * @typedef {import('./types').CLIArgs} CLIArgs
+ * @typedef {import('./types').AppConfig} AppConfig
+ */
+
+/**
+ * @param {string} configPath string
+ * @returns {function} parser function
+ */
+const getConfigFileParser = configPath => {
   if (configPath.endsWith('json')) {
     return JSON.parse;
   }
@@ -24,26 +33,33 @@ const parseConfigFile = configPath => {
 
   throw new Error(`unknown extension type, ${configPath}`);
 };
+/**
+ * @param {CLIArgs} commander CLI arguments
+ * @returns {Promise<AppConfig>} AppConfig
+ */
 
-const getConfig = commander => {
+
+const getConfig = async commander => {
   // config is required, or we don't get to this point
   const {
     config,
     outputFormat = 'json'
   } = commander;
   const configPath = (0, _fs.resolvePath)(config);
-  return (0, _fs.existsAsync)(configPath).then(() => (0, _fs.readFileAsync)(configPath, {
+  await (0, _fs.existsAsync)(configPath);
+  const configFileText = await (0, _fs.readFileAsync)(configPath, {
     encoding: 'utf8'
-  })).then(configFileText => {
-    const parsed = parseConfigFile(configPath)(configFileText);
-    parsed.outputFormat = outputFormat;
-    return parsed;
   });
+  const parsed = getConfigFileParser(configPath)(configFileText);
+  parsed.outputFormat = outputFormat;
+  return parsed;
 };
 /**
  * Filenames will be unique once per second
  * @param {string} choice result
  * @param {string} dir from config
+ * @param {Object} [options={}] from config
+ * @param {string} [options.extension] allowed extension, ex: 'yaml'
  * @returns {string} BackupFileLocation
  */
 
@@ -57,6 +73,14 @@ const createFileName = (choice, dir, {
   const fileName = `${(0, _dateFns.format)(d, 'yyMMdd_HHmmss')}_${choice}.${extension}`;
   return (0, _fs.getBackupFileLocation)(dir, fileName);
 };
+/**
+ * @param {*} choice
+ * @param {*} answersToQs
+ * @param {Object} [options] from config
+ * @param {string} [options.extension] allowed extension, ex: 'yaml'
+ * @returns
+ */
+
 
 exports.createFileName = createFileName;
 
@@ -81,6 +105,14 @@ const convertQAOutput = (choice, answersToQs, {
 
   throw new Error(`unknown extension type, ${extension}`);
 };
+/**
+ * @param {Object} options from config
+ * @param {string} [options.extension] allowed extension, ex: 'yaml'
+ * @param {*} [options.choice] todo
+ * @param {*} [options.dir] todo
+ * @param {*} [options.text] todo
+ */
+
 
 exports.convertQAOutput = convertQAOutput;
 

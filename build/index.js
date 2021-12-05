@@ -1,15 +1,23 @@
 "use strict";
 
-var _commander = _interopRequireDefault(require("./commander"));
+var _cliArgs = _interopRequireDefault(require("./cli-args"));
 
 var _ioHandlers = require("./io-handlers");
 
-var _inquirer = _interopRequireDefault(require("./inquirer"));
+var _prompter = require("./prompter");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-const main = () => (0, _ioHandlers.getConfig)(_commander.default).then(config => {
-  return (0, _inquirer.default)(config);
-});
+const main = async () => {
+  const {
+    config,
+    outputFormat
+  } = (0, _cliArgs.default)();
+  const appConfig = await (0, _ioHandlers.getConfig)({
+    config,
+    outputFormat
+  });
+  return new _prompter.Prompter(appConfig).main();
+};
 
 main();
